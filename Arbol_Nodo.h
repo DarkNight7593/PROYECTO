@@ -1,7 +1,7 @@
 #include "CargaCSV.h"
 struct TrieNode {
     unordered_map<char, TrieNode*> children;
-    vector<Pelicula> peliculas;
+    vector<Pelicula*> peliculas;
 
     TrieNode() {}
 };
@@ -10,9 +10,9 @@ class Trie {
 private:
     TrieNode* root;
 
-    void insert(TrieNode* node, const string& key, const Pelicula& pelicula, size_t depth) {
+    void insert(TrieNode* node, const string& key,Pelicula& pelicula, size_t depth) {
         if (depth == key.size()) {
-            node->peliculas.push_back(pelicula);
+            node->peliculas.push_back(&pelicula);
             return;
         }
 
@@ -28,7 +28,7 @@ private:
         insert(node->children[index], key, pelicula, depth + 1);
     }
 
-    void search(TrieNode* node, const string& key, size_t depth, vector<Pelicula>& resultados) const {
+    void search(TrieNode* node, const string& key, size_t depth, vector<Pelicula*>& resultados) const {
         if (!node) return;
 
         // Si la profundidad es igual al tamaño de la clave, buscar todas las películas en los subárboles
@@ -49,7 +49,7 @@ private:
         }
     }
 
-    void collectAll(TrieNode* node, vector<Pelicula>& resultados) const {
+    void collectAll(TrieNode* node, vector<Pelicula*>& resultados) const {
         if (!node->peliculas.empty()) {
             resultados.insert(resultados.end(), node->peliculas.begin(), node->peliculas.end());
         }
@@ -61,12 +61,12 @@ private:
 public:
     Trie() : root(new TrieNode()) {}
 
-    void insert(const string& key, const Pelicula& pelicula) {
+    void insert(const string& key,Pelicula& pelicula) {
         insert(root, key, pelicula, 0);
     }
 
-    vector<Pelicula> search(const string& key) const {
-        vector<Pelicula> resultados;
+    vector<Pelicula*> search(const string& key) const {
+        vector<Pelicula*> resultados;
         search(root, key, 0, resultados);
         return resultados;
     }

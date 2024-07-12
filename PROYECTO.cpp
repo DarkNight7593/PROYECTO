@@ -49,9 +49,9 @@ public:
 
     void mostrarPagina() const {
         cout << "Resultados de la busqueda:" << endl;
-        vector<Pelicula> currentList = sesion->getIterator().getCurrentList();
+        vector<Pelicula*> currentList = sesion->getIterator().getCurrentList();
         for (size_t i = 0; i < currentList.size(); ++i) {
-            cout << i + 1 << ". Titulo: " << currentList[i].titulo << endl;
+            cout << i + 1 << ". Titulo: " << currentList[i]->titulo << endl;
         }
 
         cout << "Opciones: (n) siguiente, (p) anterior, (e) salir, (s) seleccionar: ";
@@ -66,11 +66,11 @@ public:
         } else if (opcion == 'e') {
             return;
         } else if (opcion == 's') {
-            cout << "Seleccione el número de la película: ";
+            cout << "Seleccione el numero de la pelicula: ";
             int seleccion;
             cin >> seleccion;
             if (seleccion > 0 && seleccion <= currentList.size()) {
-                mostrarDetallesPelicula(currentList[seleccion - 1]);
+                mostrarDetallesPelicula(*currentList[seleccion - 1]);
             }
         } else {
             mostrarPagina();
@@ -80,8 +80,8 @@ public:
     void mostrarDetallesPelicula(Pelicula& pelicula) const {
         cout << "Titulo: " << pelicula.titulo << endl;
         cout << "Sinopsis: " << pelicula.plot_synopsis << endl;
-        cout << "Like: " << (pelicula.like ? "Sí" : "No") << endl;
-        cout << "Ver más tarde: " << (pelicula.watch_later ? "Sí" : "No") << endl;
+        cout << "Like: " << (pelicula.like ? "Si" : "No") << endl;
+        cout << "Ver mas tarde: " << (pelicula.watch_later ? "Si" : "No") << endl;
         cout << "Opciones: (l) Like, (v) Ver más tarde, (b) Volver: ";
         char opcion;
         cin >> opcion;

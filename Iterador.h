@@ -1,14 +1,14 @@
 #include "Arbol_Nodo.h"
 class DatabaseIterator {
 private:
-    vector<Pelicula> peliculas;
+    vector<Pelicula*> peliculas;
     size_t indice;
 public:
     DatabaseIterator(){}
-    DatabaseIterator(const vector<Pelicula>& resultados) : peliculas(resultados), indice(0) {}
+    DatabaseIterator(const vector<Pelicula*>& resultados) : peliculas(resultados), indice(0) {}
 
-    vector<Pelicula> getCurrentList() const {
-        vector<Pelicula> currentList;
+    vector<Pelicula*> getCurrentList() const {
+        vector<Pelicula*> currentList;
         for (size_t i = indice; i < peliculas.size() && i < indice + 5; ++i) {
             currentList.push_back(peliculas[i]);
         }
