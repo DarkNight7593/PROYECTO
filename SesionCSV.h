@@ -7,6 +7,7 @@ private:
     vector<Pelicula> peliculas;
     vector<Pelicula> watchLaterList;
     vector<Pelicula> likedList;
+    DatabaseIterator iterator;
 
     // Constructor privado
     Sesion(const string& username, const string& password) {
@@ -25,6 +26,14 @@ private:
     }
 
 public:
+    void setIterator(const DatabaseIterator &iterator_){
+        iterator = iterator_;
+    }
+
+    DatabaseIterator& getIterator() {
+        return iterator;
+    }
+
     static Sesion* iniciar(const string& username, const string& password) {
         if (instance == nullptr) instance = new Sesion(username, password);
         return instance;

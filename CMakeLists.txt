@@ -5,6 +5,4 @@ set(CMAKE_CXX_STANDARD 14)
 
 include_directories(.)
 
-add_executable(PROYECTO
-        Proyecto.cpp
-        Proyecto.h)
+add_executable(PROYECTO Proyecto.cpp)
