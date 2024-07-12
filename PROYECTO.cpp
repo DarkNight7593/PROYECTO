@@ -123,34 +123,3 @@ public:
         mostrarPagina();
     }
 };
-int main() {
-    // Iniciar sesión
-    string username = "user";
-    string password = "123";
-    Sesion* sesion = Sesion::iniciar(username, password);
-
-    if (sesion == nullptr) {
-        cout << "Error al iniciar sesión" << endl;
-        return 1;
-    }
-
-    // Buscar película por título
-    string palabraBuscada;
-    cout << "Ingrese una palabra clave para buscar películas: ";
-    getline(cin, palabraBuscada);
-
-    vector<Pelicula> encontradasPorTitulo = sesion->buscarPelicula(palabraBuscada, true);
-    DatabaseIterator iterator(encontradasPorTitulo);
-
-    // Crear y mostrar la página con decoradores
-    IPagina* pagina = new PaginaBase();
-    pagina = new BuscadorDecorator(pagina);
-    pagina = new ResultadosDecorator(pagina, encontradasPorTitulo);
-    pagina = new PaginacionDecorator(pagina, iterator, sesion);
-
-    pagina->mostrar();
-
-    delete pagina;
-
-    return 0;
-}
