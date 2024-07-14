@@ -1,69 +1,53 @@
 #include "Iterador.h"
+#include "forward_list"
+#include "algorithm"
 class Sesion {
 private:
     static Sesion* instance;
-    Trie trieTitulos;
-    Trie trieTags;
-    vector<Pelicula*> peliculas;
-    vector<Pelicula*> watchLaterList;
-    vector<Pelicula*> likedList;
-    DatabaseIterator iterator;
+    static forward_list<Pelicula*>* watchLaterList;
+    static forward_list<Pelicula*>* likedList;
 
-    // Constructor privado
-    Sesion(const string& username, const string& password) {
-        string nombreArchivo = "mpst_full_data.csv";
-        peliculas = leerCSV(nombreArchivo);
-        for (auto& pelicula : peliculas) {
-            trieTitulos.insert(pelicula->titulo, *pelicula);
-            istringstream tagStream(pelicula->tags);
-            string tag;
-            while (getline(tagStream, tag, ',')) {
-                trieTags.insert(tag, *pelicula);
-            }
-        }
-    }
+    Sesion(){}
 
 public:
-    void setIterator(const DatabaseIterator &iterator_){
-        iterator = iterator_;
-    }
-
-    DatabaseIterator& getIterator() {
-        return iterator;
-    }
 
     static Sesion* iniciar(const string& username, const string& password) {
-        if (instance == nullptr && (username == "user" && password == "123")) instance = new Sesion(username, password);
+        if (instance == nullptr && (username == "user" && password == "123")) instance = new Sesion();
         return instance;
     }
 
-    vector<Pelicula*> buscarPelicula(const string& key, bool buscarPorTitulo) {
-        if (buscarPorTitulo) return trieTitulos.search(key);
-        else return trieTags.search(key);
-    }
-
-    void agregarVerMasTarde(Pelicula& pelicula) {
-        watchLaterList.push_back(&pelicula);
-    }
-
-    void agregarLike(Pelicula& pelicula) {
-        likedList.push_back(&pelicula);
-    }
-
-    void mostrarVerMasTarde() const {
-        cout << "Películas en Ver más tarde:" << endl;
-        for (const auto& pelicula : watchLaterList) {
-            cout << "Título: " << pelicula->titulo << endl;
+    void static VerMasTarde(Pelicula* pelicula) {
+        if(!pelicula->watch_later) watchLaterList->remove(pelicula);
+        else{
+            auto it=watchLaterList->before_begin();
+            for(int i=0;i<distance(watchLaterList->begin(), watchLaterList->end());i++) next(it);
+            watchLaterList->insert_after(it,pelicula);
         }
     }
 
-    void mostrarLikes() const {
-        cout << "Películas que te gustan:" << endl;
-        for (const auto& pelicula : likedList) {
-            cout << "Título: " << pelicula->titulo << endl;
+    void static Like(Pelicula* pelicula) {
+        if(!pelicula->like) likedList->remove(pelicula);
+        else{
+            auto it=likedList->before_begin();
+            for(int i=0;i<distance(likedList->begin(), likedList->end());i++) next(it);
+            likedList->insert_after(it,pelicula);
         }
     }
+
+    vector<Pelicula*> mostrarVerMasTarde(){
+        vector<Pelicula*> lista;
+        for_each(likedList->begin(), likedList->end(), [&](Pelicula* pelicula){lista.emplace_back(pelicula);});
+        return lista;
+    }
+    void mostrarlikes(){
+        cout << "Películas con likes:" << endl;
+        for_each(likedList->begin(), likedList->end(), [](Pelicula* pelicula){cout << pelicula->titulo << endl;});
+    }
+
+
 };
 
 // Inicializar la instancia de Sesion a nullptr
 Sesion* Sesion::instance = nullptr;
+forward_list<Pelicula*>* Sesion::likedList = new forward_list<Pelicula*>;
+forward_list<Pelicula*>* Sesion::watchLaterList = new forward_list<Pelicula*>;

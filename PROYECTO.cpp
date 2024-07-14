@@ -1,118 +1,54 @@
-#include "SesionCSV.h"
-// Interfaz base para todas las decoraciones de la página
-class IPagina {
-public:
-    virtual ~IPagina() = default;
-    virtual void mostrar() const = 0;
-};
-
-// Clase concreta que representa el contenido base de la página
-class PaginaBase : public IPagina {
-public:
-    PaginaBase(){}
-    void mostrar() const override {
-        cout << "Bienvenido a la plataforma de streaming" << endl;
+#include "Decorator.h"
+void opcioninvalida(){
+    cerr << ("Opcion no valida. \nIntentalo de nuevo!!") << endl;
+    limpiar(2);
+}
+void funcion(MenuDecorator* Menu,PaginacionDecorator* busquedatitulo,PaginacionDecorator* busquedatag,listaDecorator* lista){
+    Menu->mostrarpagina();
+    int option;
+    cin>>option;
+    while (option>4 || option<1){
+        opcioninvalida();
+        Menu->mostrarpagina();
+        cin>>option;
     }
-};
-
-// Decorador base que implementa IPagina y contiene un puntero a otro objeto IPagina
-class PaginaDecorator : public IPagina {
-protected:
-    IPagina* pagina;
-
-public:
-    PaginaDecorator()=default;
-    PaginaDecorator(IPagina* pagina) : pagina(pagina) {}
-    void mostrar() const override {
-        pagina->mostrar();
-    }
-};
-
-
-// Decorador concreto que añade paginación a los resultados de la búsqueda
-class PaginacionDecorator : public PaginaDecorator {
-private:
-    Sesion* sesion;
-public:
-    PaginacionDecorator()=default;
-    PaginacionDecorator(IPagina* pagina, Sesion* sesion): PaginaDecorator(pagina), sesion(sesion) {
-        string palabraBuscada;
-        cout << "Ingrese una palabra clave para buscar peliculas: ";
-        getline(cin, palabraBuscada);
-        sesion->setIterator(DatabaseIterator(sesion->buscarPelicula(palabraBuscada, true)));
-    }
-
-    void mostrar() const override {
-        PaginaDecorator::mostrar();
-        mostrarPagina();
-    }
-
-    void mostrarPagina() const {
-        cout << "Resultados de la busqueda:" << endl;
-        vector<Pelicula*> currentList = sesion->getIterator().getCurrentList();
-        for (size_t i = 0; i < currentList.size(); ++i) {
-            cout << i + 1 << ". Titulo: " << currentList[i]->titulo << endl;
+    limpiar(1);
+    if(option==1){
+        cout<<"1)Por titulo\n2)Por tag"<<endl;
+        cin>>option;
+        while (option>2 || option<1){
+            opcioninvalida();
+            cout<<"1)Por titulo\n2)Por tag"<<endl;
+            cin>>option;
         }
-
-        cout << "Opciones: (n) siguiente, (p) anterior, (e) salir, (s) seleccionar: ";
-        char opcion;
-        cin >> opcion;
-        if (opcion == 'n' && sesion->getIterator().hasNext()) {
-            sesion->getIterator().next();
-            mostrarPagina();
-        } else if (opcion == 'p' && sesion->getIterator().hasPrevious()) {
-            sesion->getIterator().previous();
-            mostrarPagina();
-        } else if (opcion == 'e') {
-            return;
-        } else if (opcion == 's') {
-            cout << "Seleccione el numero de la pelicula: ";
-            int seleccion;
-            cin >> seleccion;
-            if (seleccion > 0 && seleccion <= currentList.size()) {
-                mostrarDetallesPelicula(*currentList[seleccion - 1]);
-            }
-        } else {
-            mostrarPagina();
-        }
+        limpiar(1);
+        if(option==1) busquedatitulo->mostrarpagina();
+        else busquedatag->mostrarpagina();
+        limpiar(1);
+        funcion(Menu,busquedatitulo,busquedatag,lista);
     }
-
-    void mostrarDetallesPelicula(Pelicula& pelicula) const {
-        cout << "Titulo: " << pelicula.titulo << endl;
-        cout << "Sinopsis: " << pelicula.plot_synopsis << endl;
-        cout << "Like: " << (pelicula.like ? "Si" : "No") << endl;
-        cout << "Ver mas tarde: " << (pelicula.watch_later ? "Si" : "No") << endl;
-        cout << "Opciones: (l) Like, (v) Ver más tarde, (b) Volver: ";
-        char opcion;
-        cin >> opcion;
-        if (opcion == 'l') {
-            pelicula.like = !pelicula.like;
-            sesion->agregarLike(pelicula);
-        } else if (opcion == 'v') {
-            pelicula.watch_later= !pelicula.watch_later;
-            sesion->agregarVerMasTarde(pelicula);
-        }
-        mostrarPagina();
+    else if(option==2){
+        funcion(Menu,busquedatitulo,busquedatag,lista);
     }
-};
+    else if(option==3){
+        limpiar(1);
+        lista->mostrarpagina();
+        limpiar(1);
+        funcion(Menu,busquedatitulo,busquedatag,lista);
+    }
+    else if(option==4){
+        return;
+    }
+}
 int main() {
-    // Iniciar sesión
-    string username = "user";
-    string password = "123";
-    Sesion* sesion = Sesion::iniciar(username, password);
-
-    if (sesion == nullptr) {
-        cout << "Error al iniciar sesion" << endl;
-        return 1;
-    }
-
-    // Crear y mostrar la página con decoradores
-    IPagina* pagina = new PaginaBase();
-    pagina = new PaginacionDecorator(pagina, sesion);
-
-    pagina->mostrar();
-
-    delete pagina;
-
+    int option;
+    ProxyWeb* web=new ProxyWeb();
+    web->accediendo();
+    MenuDecorator* Menu=new MenuDecorator(web->getMainWeb());
+    PaginacionDecorator* busquedatitulo=new PaginacionDecorator(web->getMainWeb(), true);
+    PaginacionDecorator* busquedatag=new PaginacionDecorator(web->getMainWeb(), false);
+    listaDecorator* lista=new listaDecorator(web->getMainWeb());
+    funcion(Menu,busquedatitulo,busquedatag,lista);
+    cout<<"GRACIAS POR USAR NUESTRA PLATAFORMA"<<endl;
     return 0;
 }
