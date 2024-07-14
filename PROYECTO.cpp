@@ -41,7 +41,6 @@ void funcion(MenuDecorator* Menu,PaginacionDecorator* busquedatitulo,PaginacionD
     }
 }
 int main() {
-    int option;
     ProxyWeb* web=new ProxyWeb();
     web->accediendo();
     MenuDecorator* Menu=new MenuDecorator(web->getMainWeb());
