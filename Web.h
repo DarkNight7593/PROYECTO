@@ -30,6 +30,10 @@ public:
         }
     }
 
+    vector<Pelicula*>& getpeliculas(){
+        return peliculas;
+    }
+
     virtual ~Web() = default;
 };
 

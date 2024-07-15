@@ -1,4 +1,7 @@
 #include "Web.h"
+#include <thread>
+#include <future>
+#include <mutex>
 
 // Decorador base que implementa IPagina y contiene un puntero a otro objeto IPagina
 class WebDecorator : public MainWeb {
@@ -109,6 +112,125 @@ public:
         cout << "Ingrese una palabra clave para buscar peliculas: ";
         cin >> palabraBuscada;
         iterador= new DatabaseIterator(web->buscarPelicula(palabraBuscada, tipo));
+        resultados();
+    }
+};
+
+class RecomendacionDecorator : public WebDecorator {
+public:
+    RecomendacionDecorator() = default;
+    RecomendacionDecorator(MainWeb* web) : WebDecorator(web) {}
+
+    void mostrarpagina() override {
+        vector<Pelicula*> likedMovies = *(sesion->mostrarlikes());
+        unordered_map<string, int> tagFrequency;
+
+        // Contar la frecuencia de los tags en las películas que les gustaron al usuario
+        for (auto& pelicula : likedMovies) {
+            istringstream tagStream(pelicula->tags);
+            string tag;
+            while (getline(tagStream, tag, ',')) {
+                tagFrequency[tag]++;
+            }
+        }
+
+        vector<Pelicula*> recommendedMovies;
+        for (auto& pelicula : web->getpeliculas()) {
+            if (find(likedMovies.begin(), likedMovies.end(), pelicula) == likedMovies.end()) {
+                int similarityScore = 0;
+                istringstream tagStream(pelicula->tags);
+                string tag;
+                while (getline(tagStream, tag, ',')) {
+                    similarityScore += tagFrequency[tag];
+                }
+                if (similarityScore > 0) {
+                    recommendedMovies.push_back(pelicula);
+                }
+            }
+        }
+
+        // Crear promesas y futuros para el ordenamiento en subrangos
+        size_t numThreads = 3;
+        size_t chunkSize = recommendedMovies.size() / numThreads;
+        vector<promise<void>> promises(numThreads);
+        vector<future<void>> futures;
+
+        for (auto& promise : promises) {
+            futures.push_back(promise.get_future());
+        }
+
+        // Ordenar cada subrango en un hilo separado
+        vector<thread> threads;
+        for (size_t i = 0; i < numThreads; ++i) {
+            size_t start = i * chunkSize;
+            size_t end = (i == numThreads - 1) ? recommendedMovies.size() : start + chunkSize;
+
+            threads.emplace_back([start, end, &recommendedMovies, &tagFrequency, &promises, i]() {
+                sort(recommendedMovies.begin() + start, recommendedMovies.begin() + end, [&](Pelicula* a, Pelicula* b) {
+                    int scoreA = 0, scoreB = 0;
+                    istringstream tagStreamA(a->tags), tagStreamB(b->tags);
+                    string tag;
+                    while (getline(tagStreamA, tag, ',')) {
+                        scoreA += tagFrequency[tag];
+                    }
+                    while (getline(tagStreamB, tag, ',')) {
+                        scoreB += tagFrequency[tag];
+                    }
+                    return scoreA > scoreB;
+                });
+                promises[i].set_value();
+            });
+        }
+
+        // Esperar a que todos los hilos terminen
+        for (auto& future : futures) {
+            future.get();
+        }
+
+        // Unir todos los hilos
+        for (auto& thread : threads) {
+            if (thread.joinable()) {
+                thread.join();
+            }
+        }
+
+        // Fusionar los subrangos ordenados
+        vector<Pelicula*> sortedMovies;
+        vector<size_t> indices(numThreads, 0);
+        for (size_t i = 0; i < numThreads; ++i) {
+            indices[i] = i * chunkSize;
+        }
+
+        auto comp = [&](Pelicula* a, Pelicula* b) {
+            int scoreA = 0, scoreB = 0;
+            istringstream tagStreamA(a->tags), tagStreamB(b->tags);
+            string tag;
+            while (getline(tagStreamA, tag, ',')) {
+                scoreA += tagFrequency[tag];
+            }
+            while (getline(tagStreamB, tag, ',')) {
+                scoreB += tagFrequency[tag];
+            }
+            return scoreA > scoreB;
+        };
+
+        while (true) {
+            Pelicula* minPelicula = nullptr;
+            size_t minIndex = 0;
+            for (size_t i = 0; i < numThreads; ++i) {
+                if (indices[i] < ((i == numThreads - 1) ? recommendedMovies.size() : (i + 1) * chunkSize)) {
+                    if (!minPelicula || comp(recommendedMovies[indices[i]], minPelicula)) {
+                        minPelicula = recommendedMovies[indices[i]];
+                        minIndex = i;
+                    }
+                }
+            }
+            if (!minPelicula) break;
+            sortedMovies.push_back(minPelicula);
+            indices[minIndex]++;
+        }
+
+        iterador = new DatabaseIterator(&sortedMovies);
         resultados();
     }
 };
