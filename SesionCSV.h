@@ -36,7 +36,7 @@ public:
 
     vector<Pelicula*> mostrarVerMasTarde(){
         vector<Pelicula*> lista;
-        for_each(likedList->begin(), likedList->end(), [&](Pelicula* pelicula){lista.emplace_back(pelicula);});
+        for_each(watchLaterList->begin(), watchLaterList->end(), [&](Pelicula* pelicula){lista.emplace_back(pelicula);});
         return lista;
     }
     void mostrarlikes(){
