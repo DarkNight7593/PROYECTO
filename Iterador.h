@@ -1,17 +1,18 @@
 #include "Arbol_Nodo.h"
 class DatabaseIterator {
 private:
-    vector<Pelicula*> peliculas;
+    vector<Pelicula*>* peliculas;
     size_t indice;
+    vector<Pelicula*> currentList;
 public:
     DatabaseIterator(){}
-    DatabaseIterator(const vector<Pelicula*>& resultados) : peliculas(resultados), indice(0) {}
+    DatabaseIterator(vector<Pelicula*>* resultados) : peliculas(resultados), indice(0) {}
 
-    vector<Pelicula*> getCurrentList() const {
-        vector<Pelicula*> currentList;
-        for (size_t i = indice; i < peliculas.size() && i < indice + 5; ++i) {
-            currentList.push_back(peliculas[i]);
-        }
+    vector<Pelicula*>& getCurrentList() {
+        currentList={};
+        auto start = peliculas->begin() + indice;
+        auto end = (indice + 5 < peliculas->size()) ? peliculas->begin() + indice + 5 : peliculas->end();
+        currentList.assign(start, end);
         return currentList;
     }
 
@@ -32,7 +33,7 @@ public:
     }
 
     bool hasNext() {
-        return indice + 5 < peliculas.size();
+        return indice + 5 < peliculas->size();
     }
 
     bool hasPrevious() {

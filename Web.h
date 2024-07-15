@@ -12,15 +12,22 @@ protected:
     vector<Pelicula*> peliculas;
     Trie trieTitulos;
     Trie trieTags;
+    vector<Pelicula*>* buscada;
 
 public:
     Web()=default;
     virtual void accediendo() = 0;
     virtual void mostrarpagina(){}
 
-    vector<Pelicula*> buscarPelicula(const string& key, bool buscarPorTitulo) {
-        if (buscarPorTitulo) return trieTitulos.search(key);
-        else return trieTags.search(key);
+    vector<Pelicula*>* buscarPelicula(const string& key, bool buscarPorTitulo) {
+        if (buscarPorTitulo){
+            buscada=new vector<Pelicula*>{trieTitulos.search(key)};
+            return buscada;
+        }
+        else {
+            buscada=new vector<Pelicula*>{trieTags.search(key)};
+            return buscada;
+        }
     }
 
     virtual ~Web() = default;

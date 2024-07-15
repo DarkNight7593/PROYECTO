@@ -4,7 +4,7 @@
 class Sesion {
 private:
     static Sesion* instance;
-    static forward_list<Pelicula*>* watchLaterList;
+    static vector<Pelicula*>* watchLaterList;
     static forward_list<Pelicula*>* likedList;
 
     Sesion(){}
@@ -17,12 +17,8 @@ public:
     }
 
     void static VerMasTarde(Pelicula* pelicula) {
-        if(!pelicula->watch_later) watchLaterList->remove(pelicula);
-        else{
-            auto it=watchLaterList->before_begin();
-            for(int i=0;i<distance(watchLaterList->begin(), watchLaterList->end());i++) next(it);
-            watchLaterList->insert_after(it,pelicula);
-        }
+        if(!pelicula->watch_later) watchLaterList->erase(remove_if(watchLaterList->begin(), watchLaterList->end(), [&](Pelicula* peli) { return peli == pelicula; }), watchLaterList->end());
+        else watchLaterList->emplace_back(pelicula);
     }
 
     void static Like(Pelicula* pelicula) {
@@ -34,10 +30,8 @@ public:
         }
     }
 
-    vector<Pelicula*> mostrarVerMasTarde(){
-        vector<Pelicula*> lista;
-        for_each(watchLaterList->begin(), watchLaterList->end(), [&](Pelicula* pelicula){lista.emplace_back(pelicula);});
-        return lista;
+    vector<Pelicula*>* mostrarVerMasTarde(){
+        return watchLaterList;
     }
     void mostrarlikes(){
         cout << "Películas con likes:" << endl;
@@ -50,4 +44,4 @@ public:
 // Inicializar la instancia de Sesion a nullptr
 Sesion* Sesion::instance = nullptr;
 forward_list<Pelicula*>* Sesion::likedList = new forward_list<Pelicula*>;
-forward_list<Pelicula*>* Sesion::watchLaterList = new forward_list<Pelicula*>;
+vector<Pelicula*>* Sesion::watchLaterList = new vector<Pelicula*>;

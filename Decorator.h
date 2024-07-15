@@ -51,7 +51,7 @@ public:
             limpiar(1);
             iterador->next();
             resultados();
-        } else if (opcion == 'p' && iterador->hasPrevious()) {
+        } else if (opcion == 'p') {
             limpiar(1);
             iterador->previous();
             resultados();
