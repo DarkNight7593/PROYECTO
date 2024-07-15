@@ -75,10 +75,10 @@ public:
 };
 
 
-class listaDecorator : public WebDecorator{
+class MastardeDecorator : public WebDecorator{
 public:
-    listaDecorator()=default;
-    listaDecorator(MainWeb* web):WebDecorator(web){}
+    MastardeDecorator()=default;
+    MastardeDecorator(MainWeb* web): WebDecorator(web){}
     void mostrarpagina() override{
         iterador=new DatabaseIterator(sesion->mostrarVerMasTarde());
         cout<<"Ver mas tarde:"<<endl;
@@ -111,12 +111,12 @@ public:
 
 
 // Decorador concreto que añade paginación a los resultados de la búsqueda
-class PaginacionDecorator : public WebDecorator {
+class BusquedaDecorator : public WebDecorator {
 private:
     bool tipo;
 public:
-    PaginacionDecorator()=default;
-    PaginacionDecorator(MainWeb* web,bool tipo_):WebDecorator(web),tipo(tipo_){}
+    BusquedaDecorator()=default;
+    BusquedaDecorator(MainWeb* web, bool tipo_): WebDecorator(web), tipo(tipo_){}
 
     void mostrarpagina() override {
         string palabraBuscada;
