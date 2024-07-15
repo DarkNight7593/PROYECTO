@@ -134,7 +134,10 @@ public:
             }
         }
 
+        // Mapa para almacenar las películas y sus similarityScores
+        unordered_map<Pelicula*, int> recommendedMoviesMap;
         vector<Pelicula*> recommendedMovies;
+
         for (auto& pelicula : web->getpeliculas()) {
             if (find(likedMovies.begin(), likedMovies.end(), pelicula) == likedMovies.end()) {
                 int similarityScore = 0;
@@ -144,6 +147,7 @@ public:
                     similarityScore += tagFrequency[tag];
                 }
                 if (similarityScore > 0) {
+                    recommendedMoviesMap[pelicula] = similarityScore;
                     recommendedMovies.push_back(pelicula);
                 }
             }
@@ -165,18 +169,9 @@ public:
             size_t start = i * chunkSize;
             size_t end = (i == numThreads - 1) ? recommendedMovies.size() : start + chunkSize;
 
-            threads.emplace_back([start, end, &recommendedMovies, &tagFrequency, &promises, i]() {
+            threads.emplace_back([start, end, &recommendedMovies, &recommendedMoviesMap, &promises, i]() {
                 sort(recommendedMovies.begin() + start, recommendedMovies.begin() + end, [&](Pelicula* a, Pelicula* b) {
-                    int scoreA = 0, scoreB = 0;
-                    istringstream tagStreamA(a->tags), tagStreamB(b->tags);
-                    string tag;
-                    while (getline(tagStreamA, tag, ',')) {
-                        scoreA += tagFrequency[tag];
-                    }
-                    while (getline(tagStreamB, tag, ',')) {
-                        scoreB += tagFrequency[tag];
-                    }
-                    return scoreA > scoreB;
+                    return recommendedMoviesMap[a] > recommendedMoviesMap[b];
                 });
                 promises[i].set_value();
             });
@@ -201,25 +196,12 @@ public:
             indices[i] = i * chunkSize;
         }
 
-        auto comp = [&](Pelicula* a, Pelicula* b) {
-            int scoreA = 0, scoreB = 0;
-            istringstream tagStreamA(a->tags), tagStreamB(b->tags);
-            string tag;
-            while (getline(tagStreamA, tag, ',')) {
-                scoreA += tagFrequency[tag];
-            }
-            while (getline(tagStreamB, tag, ',')) {
-                scoreB += tagFrequency[tag];
-            }
-            return scoreA > scoreB;
-        };
-
         while (true) {
             Pelicula* minPelicula = nullptr;
             size_t minIndex = 0;
             for (size_t i = 0; i < numThreads; ++i) {
                 if (indices[i] < ((i == numThreads - 1) ? recommendedMovies.size() : (i + 1) * chunkSize)) {
-                    if (!minPelicula || comp(recommendedMovies[indices[i]], minPelicula)) {
+                    if (!minPelicula || recommendedMoviesMap[recommendedMovies[indices[i]]] > recommendedMoviesMap[minPelicula]) {
                         minPelicula = recommendedMovies[indices[i]];
                         minIndex = i;
                     }
