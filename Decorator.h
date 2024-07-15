@@ -86,6 +86,17 @@ public:
     }
 };
 
+class MegustaDecorator : public WebDecorator{
+public:
+    MegustaDecorator()=default;
+    MegustaDecorator(MainWeb* web):WebDecorator(web){}
+    void mostrarpagina() override{
+        iterador=new DatabaseIterator(sesion->mostrarlikes());
+        cout<<"Peliculas que me gustan:"<<endl;
+        resultados();
+    }
+};
+
 
 class MenuDecorator : public WebDecorator {
 public:
@@ -93,7 +104,7 @@ public:
     MenuDecorator(MainWeb* web):WebDecorator(web){}
     void mostrarpagina() override{
         web->mostrarpagina();
-        cout<<"MENU:\n1)Busqueda\n2)Recomendados\n3)Ver mas tarde\n4)exit"<<endl;
+        cout<<"MENU:\n1)Busqueda\n2)Recomendados\n3)Likes\n4)Ver mas tarde\n5)exit"<<endl;
     }
 };
 
