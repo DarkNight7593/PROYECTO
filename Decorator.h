@@ -16,7 +16,7 @@ public:
         cout << "Sinopsis: " << pelicula->plot_synopsis << endl;
         cout << "Like: " << (pelicula->like ? "Si" : "No") << endl;
         cout << "Ver mas tarde: " << (pelicula->watch_later ? "Si" : "No") << endl;
-        cout << "Opciones: (l) Like, (v) Ver más tarde, (b) Volver: ";
+        cout << "Opciones: (l) Like, (v) Ver mas tarde, (b) Volver: ";
         char opcion;
         cin >> opcion;
         if (opcion == 'l') {
