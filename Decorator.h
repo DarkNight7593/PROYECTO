@@ -121,7 +121,8 @@ public:
     void mostrarpagina() override {
         string palabraBuscada;
         cout << "Ingrese una palabra clave para buscar peliculas: ";
-        cin >> palabraBuscada;
+        cin.ignore(numeric_limits<streamsize>::max(), '\n');
+        getline(cin,palabraBuscada);
         iterador= new DatabaseIterator(web->buscarPelicula(palabraBuscada, tipo));
         resultados();
     }
