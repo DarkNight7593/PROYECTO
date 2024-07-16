@@ -125,6 +125,7 @@ public:
         getline(cin,palabraBuscada);
         iterador= new DatabaseIterator(web->buscarPelicula(palabraBuscada, tipo));
         resultados();
+
     }
 };
 
