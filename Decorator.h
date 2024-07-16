@@ -77,6 +77,7 @@ public:
 
 class MastardeDecorator : public WebDecorator{
 public:
+
     MastardeDecorator()=default;
     MastardeDecorator(MainWeb* web): WebDecorator(web){}
     void mostrarpagina() override{
