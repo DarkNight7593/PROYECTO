@@ -31,7 +31,6 @@ private:
     void search(TrieNode* node, const string& key, size_t depth, vector<Pelicula*>& resultados) const {
         if (!node) return;
 
-        // Si la profundidad es igual al tamaño de la clave, buscar todas las películas en los subárboles
         if (depth - 1 == key.size()) {
             collectAll(node, resultados);
             return;

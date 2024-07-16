@@ -36,7 +36,7 @@ public:
 
 };
 
-// Inicializar la instancia de Sesion a nullptr
+// Inicializar
 Sesion* Sesion::instance = nullptr;
 vector<Pelicula*>* Sesion::likedList = new vector<Pelicula*>;
 vector<Pelicula*>* Sesion::watchLaterList = new vector<Pelicula*>;

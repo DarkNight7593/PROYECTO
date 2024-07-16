@@ -111,7 +111,6 @@ public:
 
 
 
-// Decorador concreto que añade paginación a los resultados de la búsqueda
 class BusquedaDecorator : public WebDecorator {
 private:
     bool tipo;
