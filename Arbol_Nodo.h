@@ -11,7 +11,7 @@ private:
     TrieNode* root;
 
     void insert(TrieNode* node, const string& key,Pelicula& pelicula, size_t depth) {
-        if (depth-1== key.size()) {
+        if (depth - 1 == key.size()) {
             node->peliculas.push_back(&pelicula);
             return;
         }
@@ -32,7 +32,7 @@ private:
         if (!node) return;
 
         // Si la profundidad es igual al tamaño de la clave, buscar todas las películas en los subárboles
-        if (depth-1 == key.size()) {
+        if (depth - 1 == key.size()) {
             collectAll(node, resultados);
             return;
         }
