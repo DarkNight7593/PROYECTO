@@ -37,3 +37,6 @@ Al iniciar el programa, se te pedirá que ingreses tu país (Peru) y ID (1234567
 - **Estructuras de Datos:** El uso de tries para la búsqueda eficiente se basa en los principios discutidos en Introduction to Algorithms por Cormen, Leiserson, Rivest y Stein.
 - **Patrones de Diseño:** Los patrones de diseño utilizados, como el Proxy y Decorator, están inspirados en Design Patterns: Elements of Reusable Object-Oriented Software por Gamma, Helm, Johnson y Vlissides.
 - **Manejo de CSV en C++:** Para la lectura de archivos CSV, se ha seguido el enfoque descrito en C++ Cookbook por D. Ryan Stephens y Christopher Diggins.
+
+### Video
+- https://drive.google.com/drive/folders/1CVV4LKhp4ym9K9bXU_9EkI8P7lkHA6ZC
